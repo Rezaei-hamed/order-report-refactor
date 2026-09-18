@@ -17,3 +17,11 @@
 **Konsekvens:** Om vi behöver ändra något i beräkningen måste vi ändra koden på flera ställen. Det finns då risk att man glömmer ett ställe.
 
 **Förslag:** Skapa en gemensam funktion, till exempel `summarize_by(data, group_column)`, som kan användas för både kategori och region. Då behöver vi inte skriva samma kod flera gånger.
+
+Fynd 3 – print() användes för all utskrift
+
+Observation: Koden använde print() både för vanlig information, till exempel hur många rader som lästes in, och för felmeddelanden.
+
+Konsekvens: Det blev svårt att skilja mellan vanlig information och fel. Det gick också inte att styra vilka meddelanden som skulle visas.
+
+Förslag: Använd Pythons logging-modul. Använd logger.info() för vanlig information och logger.error() för fel. Logging kan sedan konfigureras centralt med logging.basicConfig().

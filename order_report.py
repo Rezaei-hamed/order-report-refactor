@@ -1,5 +1,15 @@
-import os
 import pandas as pd
+
+from dataclasses import dataclass
+from pathlib import Path
+
+
+
+@dataclass(frozen=True, kw_only=True)
+class ReportConfig:
+    input_path:Path
+    output_dir:Path
+
 
 import logging
 logger= logging.getLogger(__name__)
@@ -14,16 +24,22 @@ logging.basicConfig(
 
 
 
-INPUT_FILE = "data/orders.csv"
-OUTPUT_FOLDER = "output"
 
-# print("Startar orderrapport")
+config=ReportConfig(
+    input_path=Path("data/orders.csv"),
+    output_dir=Path("output"),
+)
+
+
+
+
 logger.info("Startar orderrapport")
 
 
 
 try:
-    data = pd.read_csv(INPUT_FILE)
+    data =pd.read_csv(config.input_path)
+
 
     required = {
         "order_id",
@@ -70,11 +86,6 @@ try:
 
 #--------------------------------------------------------------------------------
     logger.info("Läser in %d rader", len(data))
-
-
-
-    #print("Läste in", len(data), "rader")
-
 
 
     data["region"] = data["region"].fillna("Unknown").astype(str).str.strip().str.title()
@@ -143,15 +154,10 @@ try:
         }
     )
 
-    overview.to_csv(
-        os.path.join(
-            OUTPUT_FOLDER,
-            "overview.csv",
-        ),
-        index=False,
-    )
+    
+    overview.to_csv(config.output_dir /"overview.csv", index = False)
 
-    # print("Sparade overview.csv")
+
     logger.info("Sparade %s","overview.csv")
 
 
@@ -159,21 +165,28 @@ try:
 
 
     result1 = summarize_by(data, "product_category")
-    result1.to_csv(
-        os.path.join(OUTPUT_FOLDER, "sales_by_category.csv"),
-        index=False,
-    )
-    # print("Sparade sales_by_category.csv")
+
+
+    
+    result1.to_csv(config.output_dir / "sales_by_category.csv", index= False)
+
+
+
+
     logger.info("Sparade %s","sales_by_category.csv")
 
 
 
     result2 = summarize_by(data, "region")
-    result2.to_csv(
-        os.path.join(OUTPUT_FOLDER, "sales_by_region.csv"),
-        index=False,
-    )
-    # print("Sparade sales_by_region.csv")
+
+
+
+
+    
+    result2.to_csv(config.output_dir / "sales_by_region.csv", index=False)
+
+
+
     logger.info("Sparade %s","sales_by_region.csv")
 
 
@@ -195,12 +208,15 @@ try:
           ascending=False
           ).reset_index(drop=True)
 
-    returns_by_category.to_csv(
-        os.path.join(OUTPUT_FOLDER,
-                      "returns_by_category.csv"),
-        index=False,
-    )
-    # print("Sparade returns_by_category.csv")
+
+
+
+    
+    returns_by_category.to_csv(config.output_dir /"returns_by_category.csv", index=False)
+
+
+
+
     logger.info("Sparade %s","returns_by_category.csv")
 
 
@@ -209,5 +225,5 @@ try:
 
 
 except Exception as error:
-    # print("Något gick fel:", error)
+    
     logger.error("Något gick fel: %s",error)
