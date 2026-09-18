@@ -1,10 +1,26 @@
 import os
 import pandas as pd
 
+import logging
+logger= logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s | %(name)s | %(message)s",
+)
+
+
+
+
+
+
 INPUT_FILE = "data/orders.csv"
 OUTPUT_FOLDER = "output"
 
-print("Startar orderrapport")
+# print("Startar orderrapport")
+logger.info("Startar orderrapport")
+
+
 
 try:
     data = pd.read_csv(INPUT_FILE)
@@ -53,8 +69,11 @@ try:
         raise ValueError(f"Saknade kolumner: {missing_text}")
 
 #--------------------------------------------------------------------------------
+    logger.info("Läser in %d rader", len(data))
 
-    print("Läste in", len(data), "rader")
+
+
+    #print("Läste in", len(data), "rader")
 
 
 
@@ -132,7 +151,8 @@ try:
         index=False,
     )
 
-    print("Sparade overview.csv")
+    # print("Sparade overview.csv")
+    logger.info("Sparade %s","overview.csv")
 
 
 
@@ -143,7 +163,9 @@ try:
         os.path.join(OUTPUT_FOLDER, "sales_by_category.csv"),
         index=False,
     )
-    print("Sparade sales_by_category.csv")
+    # print("Sparade sales_by_category.csv")
+    logger.info("Sparade %s","sales_by_category.csv")
+
 
 
     result2 = summarize_by(data, "region")
@@ -151,7 +173,8 @@ try:
         os.path.join(OUTPUT_FOLDER, "sales_by_region.csv"),
         index=False,
     )
-    print("Sparade sales_by_region.csv")
+    # print("Sparade sales_by_region.csv")
+    logger.info("Sparade %s","sales_by_region.csv")
 
 
 
@@ -177,48 +200,14 @@ try:
                       "returns_by_category.csv"),
         index=False,
     )
-    print("Sparade returns_by_category.csv")
-
-##------------------------------------------------------
-
-
-
-
-    # returns_by_category = (
-    #     data.groupby(
-    #         "product_category",
-    #         as_index=False,
-    #     )
-    #     .agg(
-    #         order_count=("order_id", "nunique"),
-    #         returns=("returned", "sum"),
-    #     )
-    # )
-
-    # returns_by_category["return_rate"] = (
-    #     returns_by_category["returns"]
-    #     / returns_by_category["order_count"]
-    # ).round(3)
-
-    # returns_by_category = (
-    #     returns_by_category
-    #     .sort_values(
-    #         "return_rate",
-    #         ascending=False,
-    #     )
-    #     .reset_index(drop=True)
-    # )
-
-    # returns_by_category.to_csv(
-    #     os.path.join(
-    #         OUTPUT_FOLDER,
-    #         "returns_by_category.csv",
-    #     ),
-    #     index=False,
-    # )
-
     # print("Sparade returns_by_category.csv")
-    # print("Klart")
+    logger.info("Sparade %s","returns_by_category.csv")
+
+
+
+
+
 
 except Exception as error:
-    print("Något gick fel:", error)
+    # print("Något gick fel:", error)
+    logger.error("Något gick fel: %s",error)
