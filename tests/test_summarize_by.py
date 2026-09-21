@@ -15,3 +15,17 @@ def test_summarize_by_calculates_totals():
     books_row = result[result["product_category"] == "Books"].iloc[0]
     assert books_row["total_sales"] == 300
     assert books_row["return_rate"] == 0.5
+
+
+
+def test_summarize_by_work_with_region():
+    data =pd.DataFrame({
+        "order_id":["01", "02"],
+        "region": ["North", "South"],
+        "discounted_value": [100, 200],
+        "returned": [False, False],
+    })
+
+    result =summarize_by(data, "region")
+
+    assert len(result) ==2
