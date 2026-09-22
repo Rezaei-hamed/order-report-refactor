@@ -84,10 +84,30 @@ def main():
             .str.title()
         )
 
-        data["quantity"] = pd.to_numeric(data["quantity"], errors="coerce").fillna(1)
 
-        data["unit_price"] = pd.to_numeric(data["unit_price"], errors="coerce")
-        data["unit_price"] = data["unit_price"].fillna(data["unit_price"].median())
+
+
+        # data["quantity"] = pd.to_numeric(data["quantity"], errors="coerce").fillna(1)
+        data["quantity"]=pd.to_numeric(data["quantity"], errors="coerce")
+        invalid_count=data["quantity"].isna().sum()
+        if invalid_count >0:
+            logger.warning("hittade %d ogiltiga värden i quantity,ersätter med 1",invalid_count)
+            data["quantity"]=data["quantity"].fillna(1)
+
+
+
+
+        # data["unit_price"] = pd.to_numeric(data["unit_price"], errors="coerce")
+        # data["unit_price"] = data["unit_price"].fillna(data["unit_price"].median())
+        data["unit_price"]= pd.to_numeric(data["unit_price"], errors="coerce")
+        invalid_count=data["unit_price"].isna().sum()
+        if invalid_count >0:
+            logger.warning("Hittade %d ogiltiga värden i unit_price,ersätter med median",invalid_count)
+        data["unit_price"]= data["unit_price"].fillna(data["unit_price"].median())
+
+
+
+        
 
         data["discount"] = pd.to_numeric(data["discount"], errors="coerce").fillna(0)
 

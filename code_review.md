@@ -20,6 +20,7 @@
 
 
 
+
 ### Fynd 3 – print() användes för all utskrift
 
 **Observation:**  Koden använde 'print()' både för vanlig information, till exempel hur många rader som lästes in, och för felmeddelanden.
@@ -36,3 +37,15 @@
 **Konsekvens:** När vi försökte importera en funktion, till exempel `summarize_by`, kördes hela programmet automatiskt. Det gjorde det svårt att använda och testa enskilda funktioner.
 
 **Förslag:** Flytta programmets huvudlogik till en `main()`-funktion och använda `if __name__ == "__main__":` för att starta programmet. Då körs programmet bara när filen startas direkt, och funktionerna kan importeras och testas separat.
+
+
+
+### Fynd 5 – Ogiltiga värden hanteras utan varning
+
+**Observation:** Koden använder `pd.to_numeric(..., errors="coerce")`  i det här raden 
+data["quantity"] = pd.to_numeric(data["quantity"], errors="coerce").fillna(1)
+för att omvandla ogiltiga värden till `NaN`. Sedan ersätts dessa värden med ett standardvärde med `.fillna(...)`, till exempel `1` för `quantity`. Det finns ingen logg eller varning som visar att ogiltiga värden har hittats.
+
+**Konsekvens:** Om datan innehåller felaktiga värden, till exempel text istället för ett nummer i `quantity`, får användaren eller utvecklaren ingen information om det. Det kan göra att rapporten visar felaktiga resultat utan att man vet varför.
+
+**Förslag:** Räkna hur många ogiltiga värden som har hittats innan eller efter `.fillna(...)`. Om det finns några, använd `logger.warning(...)` för att visa hur många rader som hade ogiltiga värden.
