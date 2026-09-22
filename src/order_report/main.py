@@ -18,6 +18,7 @@ config = ReportConfig(
     output_dir=Path("output"),
 )
 
+config.output_dir.mkdir(parents=True, exist_ok=True)
 
 def main():
     logger.info("Startar orderrapport")
