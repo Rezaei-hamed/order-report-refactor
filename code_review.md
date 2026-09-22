@@ -18,10 +18,21 @@
 
 **Förslag:** Skapa en gemensam funktion, till exempel `summarize_by(data, group_column)`, som kan användas för både kategori och region. Då behöver vi inte skriva samma kod flera gånger.
 
-Fynd 3 – print() användes för all utskrift
 
-Observation: Koden använde print() både för vanlig information, till exempel hur många rader som lästes in, och för felmeddelanden.
 
-Konsekvens: Det blev svårt att skilja mellan vanlig information och fel. Det gick också inte att styra vilka meddelanden som skulle visas.
+### Fynd 3 – print() användes för all utskrift
 
-Förslag: Använd Pythons logging-modul. Använd logger.info() för vanlig information och logger.error() för fel. Logging kan sedan konfigureras centralt med logging.basicConfig().
+**Observation:**  Koden använde 'print()' både för vanlig information, till exempel hur många rader som lästes in, och för felmeddelanden.
+
+**Konsekvens:**  Det blev svårt att skilja mellan vanlig information och fel. Det gick också inte att styra vilka meddelanden som skulle visas.
+
+**Förslag:**  Använd Pythons 'logging'-modul. Använd 'logger'.info() för vanlig information och 'logger'.error() för fel. Logging kan sedan konfigureras centralt med 'logging.basicConfig()'.
+
+
+### Fynd 4 – Programmet kördes direkt när filen importerades
+
+**Observation:** All kod för att läsa filen, bearbeta datan och skapa rapporterna låg direkt i `order_report.py`. Det fanns ingen `main()`-funktion som samlade programmets huvudlogik.
+
+**Konsekvens:** När vi försökte importera en funktion, till exempel `summarize_by`, kördes hela programmet automatiskt. Det gjorde det svårt att använda och testa enskilda funktioner.
+
+**Förslag:** Flytta programmets huvudlogik till en `main()`-funktion och använda `if __name__ == "__main__":` för att starta programmet. Då körs programmet bara när filen startas direkt, och funktionerna kan importeras och testas separat.

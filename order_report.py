@@ -37,6 +37,15 @@ def summarize_by(data, group_column):
     return summary
 
 
+
+
+def validate_columns(data, requaired_columns):
+    missing_columns =requaired_columns.difference(data.columns)
+    if missing_columns:
+        missing_text =", ".join(sorted(missing_columns))
+        raise ValueError(f"Saknade kolumner:{missing_text}")
+
+
 def main():
     logger.info("Startar orderrapport")
 
@@ -55,10 +64,14 @@ def main():
             "returned",
         }
 
-        missing_columns = required.difference(data.columns)
-        if missing_columns:
-            missing_text = ", ".join(sorted(missing_columns))
-            raise ValueError(f"Saknade kolumner: {missing_text}")
+
+
+        validate_columns(data, required)
+
+
+
+
+
 
         logger.info("Läser in %d rader", len(data))
 

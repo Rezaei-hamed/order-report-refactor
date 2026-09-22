@@ -1,5 +1,7 @@
+
+import pytest 
 import pandas as pd
-from order_report import summarize_by
+from order_report import summarize_by, validate_columns
 
 
 def test_summarize_by_calculates_totals():
@@ -29,3 +31,17 @@ def test_summarize_by_work_with_region():
     result =summarize_by(data, "region")
 
     assert len(result) ==2
+
+
+
+
+def test_validate_columns_raises_when_missing():
+    data =pd.DataFrame({
+        "order_id":["01"],
+        "region": ["North"],
+
+    })
+    required ={"order_id", "region", "discount"}
+
+    with pytest.raises(ValueError):
+        validate_columns(data,required)
