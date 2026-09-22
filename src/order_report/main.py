@@ -1,16 +1,11 @@
-import pandas as pd
-
-from dataclasses import dataclass
+import logging
 from pathlib import Path
 
+import pandas as pd
 
-@dataclass(frozen=True, kw_only=True)
-class ReportConfig:
-    input_path: Path
-    output_dir: Path
+from .config import ReportConfig
+from .transform import summarize_by, validate_columns
 
-
-import logging
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -18,60 +13,23 @@ logging.basicConfig(
     format="%(levelname)s | %(name)s | %(message)s",
 )
 
-
 config = ReportConfig(
     input_path=Path("data/orders.csv"),
     output_dir=Path("output"),
 )
 
 
-def summarize_by(data, group_column):
-    summary = data.groupby(group_column, as_index=False).agg(
-        order_count=("order_id", "nunique"),
-        total_sales=("discounted_value", "sum"),
-        returns=("returned", "sum"),
-    )
-    summary["total_sales"] = summary["total_sales"].round(2)
-    summary["return_rate"] = (summary["returns"] / summary["order_count"]).round(3)
-    summary = summary.sort_values("total_sales", ascending=False).reset_index(drop=True)
-    return summary
-
-
-
-
-def validate_columns(data, requaired_columns):
-    missing_columns =requaired_columns.difference(data.columns)
-    if missing_columns:
-        missing_text =", ".join(sorted(missing_columns))
-        raise ValueError(f"Saknade kolumner:{missing_text}")
-
-
 def main():
     logger.info("Startar orderrapport")
-
     try:
         data = pd.read_csv(config.input_path)
 
         required = {
-            "order_id",
-            "order_date",
-            "customer_id",
-            "region",
-            "product_category",
-            "quantity",
-            "unit_price",
-            "discount",
-            "returned",
+            "order_id", "order_date", "customer_id", "region",
+            "product_category", "quantity", "unit_price", "discount", "returned",
         }
 
-
-
         validate_columns(data, required)
-
-
-
-
-
 
         logger.info("Läser in %d rader", len(data))
 
@@ -84,30 +42,17 @@ def main():
             .str.title()
         )
 
+        data["quantity"] = pd.to_numeric(data["quantity"], errors="coerce")
+        invalid_count = data["quantity"].isna().sum()
+        if invalid_count > 0:
+            logger.warning("Hittade %d ogiltiga värden i quantity, ersätter med 1", invalid_count)
+        data["quantity"] = data["quantity"].fillna(1)
 
-
-
-        # data["quantity"] = pd.to_numeric(data["quantity"], errors="coerce").fillna(1)
-        data["quantity"]=pd.to_numeric(data["quantity"], errors="coerce")
-        invalid_count=data["quantity"].isna().sum()
-        if invalid_count >0:
-            logger.warning("hittade %d ogiltiga värden i quantity,ersätter med 1",invalid_count)
-            data["quantity"]=data["quantity"].fillna(1)
-
-
-
-
-        # data["unit_price"] = pd.to_numeric(data["unit_price"], errors="coerce")
-        # data["unit_price"] = data["unit_price"].fillna(data["unit_price"].median())
-        data["unit_price"]= pd.to_numeric(data["unit_price"], errors="coerce")
-        invalid_count=data["unit_price"].isna().sum()
-        if invalid_count >0:
-            logger.warning("Hittade %d ogiltiga värden i unit_price,ersätter med median",invalid_count)
-        data["unit_price"]= data["unit_price"].fillna(data["unit_price"].median())
-
-
-
-        
+        data["unit_price"] = pd.to_numeric(data["unit_price"], errors="coerce")
+        invalid_count = data["unit_price"].isna().sum()
+        if invalid_count > 0:
+            logger.warning("Hittade %d ogiltiga värden i unit_price, ersätter med median", invalid_count)
+        data["unit_price"] = data["unit_price"].fillna(data["unit_price"].median())
 
         data["discount"] = pd.to_numeric(data["discount"], errors="coerce").fillna(0)
 
@@ -160,6 +105,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
